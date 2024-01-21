@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caminv-gt-merchants
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caminv-gt-merchants
+  template:
+    metadata:
+      labels:
+        app: caminv-gt-merchants
+    spec:
+      containers:
+      - name: caminv-gt-merchants
+        image: docker.dev.digitaleconomy.gov.kh/caminv-gt-merchants:main
+        env:
+        - name: INVOICE_PROCESSOR_HOST
+          value: "http://caminv-sv-invoiceprocessor"
+        - name: PORT
+          value: "3008"
+        - name: AUTH_HOST
+          value: "http://10.0.129.50:8088"
+        - name: ALLOWED_ORIGINS
+          value: "http://localhost:4000,http://localhost:3000"
+        - name: SERVICE_ACCOUNT_HOST
+          value: "http://10.0.129.50:3010"
+        - name: ONBOARDING_MERCHANT_HOST
+          value: "http://10.0.129.50:3010"
+        - name: OLAP_SERVICE
+          value: "http://10.0.129.50:3011"
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: caminv-gt-merchants-sv
+  name: caminv-gt-merchants-sv
+spec:
+  ports:
+  - port: 3008
+    protocol: TCP
+    targetPort: 3008
+  selector:
+    app: caminv-gt-merchants
+status:
+  loadBalancer: {}

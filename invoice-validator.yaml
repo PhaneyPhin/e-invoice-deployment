@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caminv-sv-validator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caminv-sv-validator
+  template:
+    metadata:
+      labels:
+        app: caminv-sv-validator
+    spec:
+      containers:
+      - name: caminv-sv-validator
+        image: docker.dev.digitaleconomy.gov.kh/caminv-sv-validator:main
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka:9092"
+        - name: SCHEMA_REGISTRY_URL
+          value: "http://schemaregistry:8081"
+        - name: EKYB_URL
+          value: "https://ekyb-openapi-dev.camdigikey.gov.kh"
+        - name: EKYB_CAMDX_CLIENT
+          value: "caminvoice-dev-code"
+      imagePullSecrets:
+      - name: regcred

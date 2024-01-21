@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onboarding-merchants
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: onboarding-merchants
+  template:
+    metadata:
+      labels:
+        app: onboarding-merchants
+    spec:
+      containers:
+      - name: onboarding-merchants
+        image: docker.dev.digitaleconomy.gov.kh/onboarding-merchants:main
+        env:
+          - name: DB_HOST
+            value: "postgres-postgresql"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USERNAME
+            value: "postgres"
+          - name: DB_PASSWORD
+            value: "abc12345"
+          - name: DB_DATABASE
+            value: "onboarding_merchant_db"
+          - name: PORT
+            value: "3010"
+          - name: EKYB_URL
+            value: "https://ekyb-openapi-dev.camdigikey.gov.kh"
+          - name: EKYB_CAMDX_CLIENT
+            value: "caminvoice-dev-code"
+      imagePullSecrets:
+          - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: onboarding-merchants
+  name: onboarding-merchants
+spec:
+  ports:
+  - port: 3010
+    protocol: TCP
+    targetPort: 3010
+  selector:
+    app: onboarding-merchants
+status:
+  loadBalancer: {}

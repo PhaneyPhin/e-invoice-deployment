@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caminv-sv-invoiceprocessor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caminv-sv-invoiceprocessor
+  template:
+    metadata:
+      labels:
+        app: caminv-sv-invoiceprocessor
+    spec:
+      containers:
+      - name: caminv-sv-invoiceprocessor
+        image: docker.dev.digitaleconomy.gov.kh/caminv-sv-invoiceprocessor:main
+        env:
+          - name: DB_HOST
+            value: "postgres-postgresql"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USERNAME
+            value: "postgres"
+          - name: DB_PASSWORD
+            value: "abc12345"
+          - name: DB_DATABASE
+            value: "onboarding_merchant_db"
+          - name: PORT
+            value: "3007"
+          - name: KAFKA_BROKER
+            value: "kafka:9092"
+          - name: SCHEMA_REGISTRY_URL
+            value: "http://schemaregistry:8081"
+          - name: EKYB_URL
+            value: "https://ekyb-openapi-dev.camdigikey.gov.kh"
+          - name: EKYB_CAMDX_CLIENT
+            value: "caminvoice-dev-code"
+          - name: SERVICE_ACCOUNT_BASE_URL
+            value: http://10.0.129.50:3010/api/v1
+      imagePullSecrets:
+          - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: caminv-sv-invoiceprocessor
+  name: caminv-sv-invoiceprocessor
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3007
+  selector:
+    app: caminv-sv-invoiceprocessor
+status:
+  loadBalancer: {}
